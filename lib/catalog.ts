@@ -2,6 +2,7 @@ import { z } from "zod";
 import { runCompetitorCompare, runGeoPageAudit, runSchemaCitationCheck } from "./auditor";
 import { runAiCrawlerAudit } from "./crawler";
 import { CANONICAL_BRAND, getPaymentConfig } from "./env";
+import { getUpstashAnalyticsSummary } from "./redis";
 
 export type ToolMethod = "GET" | "POST";
 
@@ -124,6 +125,7 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     },
     execute: async (_input, requestOrigin) => {
       const cfg = getPaymentConfig(requestOrigin);
+      const redisAnalytics = await getUpstashAnalyticsSummary();
       return {
         ok: true,
         service: "apexseo-geo-mcp",
@@ -138,6 +140,12 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
         facilitatorAuthConfigured: cfg.hasCdpAuth,
         demoMode: cfg.demoMode,
         ssrfProtection: "strict-dns-and-redirect-private-ip-blocking",
+        analytics: {
+          redisConnected: redisAnalytics.connected,
+          totalCallsRecorded: redisAnalytics.totalCalls,
+          totalSettledUsdc: redisAnalytics.totalSettledUsdc,
+          uniquePayers: redisAnalytics.uniquePayers,
+        },
         timestamp: new Date().toISOString(),
       };
     },

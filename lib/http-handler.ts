@@ -7,6 +7,7 @@ import {
   verifyPaymentBeforeExecution,
   type FacilitatorFetchFn,
 } from "./payment";
+import { recordToolAnalytics } from "./redis";
 import { SsrfBlockedError, TargetFetchError } from "./ssrf";
 import { encodePaymentRequiredHeader } from "@x402/core/http";
 
@@ -35,6 +36,7 @@ export async function handleToolHttpRequest(
   // 1. Return 402 PAYMENT-REQUIRED challenge immediately on unpaid probes (GET, empty POST, {} body)
   // so x402 scanners (x402-trust, x402scan, AgentCash) always receive payment terms cleanly.
   if (!tool.isFree && !sigHeader?.trim()) {
+    recordToolAnalytics({ tool: tool.name, isFree: false, status: "402_probe" });
     const unpaid = await verifyPaymentBeforeExecution({
       tool,
       requestUrl: resourceUrl,
@@ -152,6 +154,12 @@ export async function handleToolHttpRequest(
   if (check.status === "verified") {
     const settlement = await settleVerifiedPayment(check.context);
     if (!settlement.settled) {
+      recordToolAnalytics({
+        tool: tool.name,
+        isFree: false,
+        status: "settlement_error",
+        amountAtomic: tool.amountAtomic,
+      });
       const challenge = buildPaymentRequiredChallenge({
         tool,
         requestUrl: resourceUrl,
@@ -169,6 +177,20 @@ export async function handleToolHttpRequest(
       });
     }
     responseHeaders["payment-response"] = settlement.encodedHeader;
+    recordToolAnalytics({
+      tool: tool.name,
+      isFree: false,
+      status: "success",
+      amountAtomic: tool.amountAtomic,
+      payer: (settlement.settleResponse as { payer?: string })?.payer,
+      txHash: (settlement.settleResponse as { transaction?: string })?.transaction,
+    });
+  } else if (tool.isFree) {
+    recordToolAnalytics({
+      tool: tool.name,
+      isFree: true,
+      status: "success",
+    });
   }
 
   return NextResponse.json(output, {

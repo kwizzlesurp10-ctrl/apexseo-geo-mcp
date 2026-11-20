@@ -8,6 +8,7 @@ import {
   type FacilitatorFetchFn,
 } from "./payment";
 import { ACTIVATION_MODES, renderApexSeoPromptMessage, type ActivationMode } from "./prompt";
+import { recordToolAnalytics } from "./redis";
 import { SsrfBlockedError, TargetFetchError } from "./ssrf";
 
 export interface JsonRpcRequest {
@@ -244,6 +245,7 @@ async function handleToolCall(
 
   // Return 402 PaymentRequired challenge immediately on unpaid tool probes (even with empty args)
   if (enforcePayment && !tool.isFree && !mcpPaymentMeta && !options.httpPaymentSignature?.trim()) {
+    recordToolAnalytics({ tool: tool.name, isFree: false, status: "402_probe" });
     const unpaid = await verifyPaymentBeforeExecution({
       tool,
       requestUrl: resourceUrl,
@@ -341,6 +343,12 @@ async function handleToolCall(
   if (paymentCtx) {
     const settlement = await settleVerifiedPayment(paymentCtx);
     if (!settlement.settled) {
+      recordToolAnalytics({
+        tool: tool.name,
+        isFree: false,
+        status: "settlement_error",
+        amountAtomic: tool.amountAtomic,
+      });
       const challenge = buildPaymentRequiredChallenge({
         tool,
         requestUrl: resourceUrl,
@@ -358,6 +366,15 @@ async function handleToolCall(
       };
     }
 
+    recordToolAnalytics({
+      tool: tool.name,
+      isFree: false,
+      status: "success",
+      amountAtomic: tool.amountAtomic,
+      payer: (settlement.settleResponse as { payer?: string })?.payer,
+      txHash: (settlement.settleResponse as { transaction?: string })?.transaction,
+    });
+
     return {
       jsonrpc: "2.0",
       id,
@@ -365,6 +382,10 @@ async function handleToolCall(
         "x402/payment-response": settlement.settleResponse,
       }),
     };
+  }
+
+  if (tool.isFree) {
+    recordToolAnalytics({ tool: tool.name, isFree: true, status: "success" });
   }
 
   return {
