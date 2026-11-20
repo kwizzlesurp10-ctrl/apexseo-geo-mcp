@@ -228,6 +228,7 @@ npx agentcash@latest fetch ${cfg.publicBaseUrl}/api/audit/page -m POST -b '{"url
           {CANONICAL_BRAND.location}
         </div>
         <div style={{ marginTop: "0.35rem" }}>
+          <a href="/privacy">Privacy</a> ·{" "}
           <a href="/.well-known/x402-trust.txt">x402-trust proof</a> ·{" "}
           <a href="/.well-known/security.txt">security.txt</a> ·{" "}
           <a href="/.well-known/funding.json">funding.json</a> ·{" "}

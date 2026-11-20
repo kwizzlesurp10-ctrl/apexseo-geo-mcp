@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export function GET(req: NextRequest) {
   const base = resolvePublicBaseUrl(req.nextUrl.origin);
   const lastmod = new Date().toISOString().slice(0, 10);
-  const urls = ["", "/mcp", "/openapi.json", "/llms.txt", "/.well-known/x402"];
+  const urls = ["", "/mcp", "/openapi.json", "/llms.txt", "/privacy", "/.well-known/x402"];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls
