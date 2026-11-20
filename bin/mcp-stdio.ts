@@ -10,10 +10,17 @@ const rl = readline.createInterface({
 // Explicit local opt-in only; paid tools require x402 payment unless running local trusted stdio mode
 const enforcePayment = process.env.MCP_STDIO_LOCAL_FREE !== "true";
 
-rl.on("line", async (line) => {
-  const trimmed = line.trim();
-  if (!trimmed) return;
+let workQueue = Promise.resolve();
+let stdinClosed = false;
+let pendingLines = 0;
 
+function exitIfDrained() {
+  if (stdinClosed && pendingLines === 0) {
+    process.exit(0);
+  }
+}
+
+async function processLine(trimmed: string): Promise<void> {
   let parsed: unknown;
   try {
     parsed = JSON.parse(trimmed);
@@ -49,8 +56,23 @@ rl.on("line", async (line) => {
       }) + "\n"
     );
   }
+}
+
+rl.on("line", (line) => {
+  const trimmed = line.trim();
+  if (!trimmed) return;
+  pendingLines += 1;
+  workQueue = workQueue.then(async () => {
+    try {
+      await processLine(trimmed);
+    } finally {
+      pendingLines -= 1;
+      exitIfDrained();
+    }
+  });
 });
 
 rl.on("close", () => {
-  process.exit(0);
+  stdinClosed = true;
+  exitIfDrained();
 });
