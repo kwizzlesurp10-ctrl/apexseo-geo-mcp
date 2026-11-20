@@ -33,6 +33,9 @@
     "start": "next start",
     "build:mcp": "esbuild bin/mcp-stdio.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/mcp-stdio.mjs",
     "mcp:stdio": "pnpm run build:mcp && node dist/mcp-stdio.mjs",
+    "build:monitor": "esbuild monitor/cli.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/monitor.mjs",
+    "monitor": "pnpm run build:monitor && node dist/monitor.mjs",
+    "monitor:check": "pnpm run build:monitor && node dist/monitor.mjs --once",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

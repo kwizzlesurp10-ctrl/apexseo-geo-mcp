@@ -178,8 +178,23 @@ export default async function HomePage() {
                 llms.txt Manifest: <a href="/llms.txt"><code>/llms.txt</code></a>
               </li>
             </ul>
-            <pre className="codeblock">{`npx agentcash@latest discover ${cfg.publicBaseUrl}
-npx agentcash@latest fetch ${cfg.publicBaseUrl}/api/audit/page -m POST -b '{"url":"https://example.com"}'`}</pre>
+            <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: "0.5rem 0 0.25rem" }}>
+              Run paid AI-crawler or GEO audits directly from the command line with AgentCash (replace <code>https://example.com</code> with the URL you want to audit):
+            </p>
+            <pre className="codeblock">{`# Discover all endpoints & pricing
+npx agentcash fetch ${cfg.publicBaseUrl}/api/pricing
+
+# Run paid AI-crawler audit ($0.01 Base USDC via x402)
+# (Replace https://example.com with the target domain to audit)
+npx agentcash fetch ${cfg.publicBaseUrl}/api/audit/crawlers \\
+  -m POST \\
+  -b '{"url":"https://example.com"}'
+
+# Run live GEO/AEO page audit ($0.02 Base USDC via x402)
+# (Replace https://example.com with the target page URL)
+npx agentcash fetch ${cfg.publicBaseUrl}/api/audit/page \\
+  -m POST \\
+  -b '{"url":"https://example.com"}'`}</pre>
           </div>
         </div>
       </section>
