@@ -9,6 +9,10 @@ export function OPTIONS() {
   return corsOptionsResponse();
 }
 
+export async function GET(req: NextRequest) {
+  return handleToolHttpRequest(req, findGeoTool("geo_competitor_compare")!);
+}
+
 export async function POST(req: NextRequest) {
   return handleToolHttpRequest(req, findGeoTool("geo_competitor_compare")!);
 }

@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { decodePaymentRequiredHeader, decodePaymentResponseHeader, encodePaymentSignatureHeader } from "@x402/core/http";
 import type { PaymentPayload } from "@x402/core/types";
-import { POST as auditPageRoute } from "@/app/api/audit/page/route";
+import { POST as auditPageRoute, GET as auditPageGetRoute } from "@/app/api/audit/page/route";
 import { GET as healthRoute } from "@/app/api/health/route";
 import { GET as pricingRoute } from "@/app/api/pricing/route";
 import { GET as mcpGetRoute, POST as mcpPostRoute } from "@/app/mcp/route";
@@ -82,6 +82,21 @@ describe("HTTP x402 Enforcement & Streamable MCP Server", () => {
     expect(decoded.accepts[0]?.payTo).toBe(CANONICAL_PAY_TO);
     expect(decoded.accepts[0]?.amount).toBe("20000");
     expect(decoded.extensions?.bazaar).toBeDefined();
+
+    // Unpaid discovery probes (GET or POST empty {}) MUST still return 402 instead of 400/405
+    const getProbe = await auditPageGetRoute(
+      new NextRequest("https://apexseo-geo-mcp.vercel.app/api/audit/page")
+    );
+    expect(getProbe.status).toBe(402);
+
+    const emptyPostProbe = await auditPageRoute(
+      new NextRequest("https://apexseo-geo-mcp.vercel.app/api/audit/page", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      })
+    );
+    expect(emptyPostProbe.status).toBe(402);
   });
 
   it("fails closed when CDP facilitator credentials are absent on production Coinbase CDP URL", async () => {
@@ -257,12 +272,12 @@ describe("HTTP x402 Enforcement & Streamable MCP Server", () => {
     expect(freeEnvelope.isError).toBeUndefined();
     expect(JSON.parse(freeEnvelope.content[0].text).ok).toBe(true);
 
-    // Unpaid paid tool call -> strict MCP isError: true + x402 structuredContent
+    // Unpaid paid tool call (even with empty arguments {}) -> strict MCP isError: true + x402 structuredContent
     const unpaidCall = await handleMcpJsonRpc({
       jsonrpc: "2.0",
       id: 5,
       method: "tools/call",
-      params: { name: "ai_crawler_audit", arguments: { url: "https://example.com" } },
+      params: { name: "ai_crawler_audit", arguments: {} },
     });
     const unpaidEnvelope = (
       unpaidCall as {

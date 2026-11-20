@@ -233,6 +233,40 @@ async function handleToolCall(
     };
   }
 
+  const publicBase = resolvePublicBaseUrl(options.requestOrigin);
+  const resourceUrl = `${publicBase}${tool.routePath}`;
+  const enforcePayment = options.enforcePayment ?? true;
+  const metaObj =
+    params?._meta && typeof params._meta === "object"
+      ? (params._meta as Record<string, unknown>)
+      : undefined;
+  const mcpPaymentMeta = metaObj?.["x402/payment"];
+
+  // Return 402 PaymentRequired challenge immediately on unpaid tool probes (even with empty args)
+  if (enforcePayment && !tool.isFree && !mcpPaymentMeta && !options.httpPaymentSignature?.trim()) {
+    const unpaid = await verifyPaymentBeforeExecution({
+      tool,
+      requestUrl: resourceUrl,
+      mode: "mcp",
+      paymentSignatureHeader: null,
+      mcpPaymentMeta: undefined,
+      requestOrigin: options.requestOrigin,
+      facilitatorFetch: options.facilitatorFetch,
+    });
+    if (unpaid.status === "rejected") {
+      return {
+        jsonrpc: "2.0",
+        id,
+        result: wrapToolError(unpaid.reason, {
+          structuredContent: unpaid.challenge as unknown as Record<string, unknown>,
+          meta: {
+            "x402/payment-required": unpaid.challenge,
+          },
+        }),
+      };
+    }
+  }
+
   const parsed = tool.zodSchema.safeParse(params?.arguments ?? {});
   if (!parsed.success) {
     const details = parsed.error.issues
@@ -245,22 +279,12 @@ async function handleToolCall(
     };
   }
 
-  const publicBase = resolvePublicBaseUrl(options.requestOrigin);
-  const resourceUrl = `${publicBase}${tool.routePath}`;
-  const enforcePayment = options.enforcePayment ?? true;
-
   let paymentCtx: Extract<
     Awaited<ReturnType<typeof verifyPaymentBeforeExecution>>,
     { status: "verified" }
   >["context"] | null = null;
 
   if (enforcePayment && !tool.isFree) {
-    const metaObj =
-      params?._meta && typeof params._meta === "object"
-        ? (params._meta as Record<string, unknown>)
-        : undefined;
-    const mcpPaymentMeta = metaObj?.["x402/payment"];
-
     const paymentCheck = await verifyPaymentBeforeExecution({
       tool,
       requestUrl: resourceUrl,

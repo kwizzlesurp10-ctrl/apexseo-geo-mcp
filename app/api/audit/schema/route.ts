@@ -9,6 +9,10 @@ export function OPTIONS() {
   return corsOptionsResponse();
 }
 
+export async function GET(req: NextRequest) {
+  return handleToolHttpRequest(req, findGeoTool("schema_citation_check")!);
+}
+
 export async function POST(req: NextRequest) {
   return handleToolHttpRequest(req, findGeoTool("schema_citation_check")!);
 }

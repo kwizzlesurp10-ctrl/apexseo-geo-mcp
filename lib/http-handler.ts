@@ -30,8 +30,51 @@ export async function handleToolHttpRequest(
   const origin = req.nextUrl?.origin || undefined;
   const publicBase = resolvePublicBaseUrl(origin);
   const resourceUrl = `${publicBase}${tool.routePath}`;
+  const sigHeader = req.headers.get("payment-signature") ?? req.headers.get("x-payment");
 
-  // 1. Parse and validate request payload before checking/settling payment
+  // 1. Return 402 PAYMENT-REQUIRED challenge immediately on unpaid probes (GET, empty POST, {} body)
+  // so x402 scanners (x402-trust, x402scan, AgentCash) always receive payment terms cleanly.
+  if (!tool.isFree && !sigHeader?.trim()) {
+    const unpaid = await verifyPaymentBeforeExecution({
+      tool,
+      requestUrl: resourceUrl,
+      mode: "http",
+      paymentSignatureHeader: null,
+      requestOrigin: origin,
+      facilitatorFetch: options?.facilitatorFetch,
+    });
+    if (unpaid.status === "rejected") {
+      return NextResponse.json(unpaid.challenge, {
+        status: 402,
+        headers: {
+          ...CORS_HEADERS,
+          "cache-control": "private, no-store",
+          "payment-required": unpaid.encodedHeader,
+        },
+      });
+    }
+  }
+
+  // 2. For GET requests on POST-only paid tools (with a stray header), return 402 challenge or 405
+  if (req.method === "GET" && tool.method === "POST") {
+    const challenge = buildPaymentRequiredChallenge({
+      tool,
+      requestUrl: resourceUrl,
+      mode: "http",
+      error: `Use POST ${tool.routePath} with JSON body and PAYMENT-SIGNATURE header.`,
+      requestOrigin: origin,
+    });
+    return NextResponse.json(challenge, {
+      status: 402,
+      headers: {
+        ...CORS_HEADERS,
+        "cache-control": "private, no-store",
+        "payment-required": encodePaymentRequiredHeader(challenge),
+      },
+    });
+  }
+
+  // 3. Parse and validate request parameters BEFORE verify/settle so bad input never spends USDC
   let rawBody: unknown = {};
   if (tool.method === "POST") {
     try {
@@ -57,8 +100,7 @@ export async function handleToolHttpRequest(
     );
   }
 
-  // 2. Enforce x402 payment before expensive upstream crawling
-  const sigHeader = req.headers.get("payment-signature") ?? req.headers.get("x-payment");
+  // 4. Verify x402 payment signature with facilitator before executing expensive live audit
   const check = await verifyPaymentBeforeExecution({
     tool,
     requestUrl: resourceUrl,
@@ -79,7 +121,7 @@ export async function handleToolHttpRequest(
     });
   }
 
-  // 3. Execute audit cleanly; surface SSRF or target fetch errors without settling payment
+  // 5. Execute audit cleanly; surface SSRF or upstream errors BEFORE settlement
   let output: unknown;
   try {
     output = await tool.execute(parsed.data, origin);
@@ -105,7 +147,7 @@ export async function handleToolHttpRequest(
     );
   }
 
-  // 4. Settle verified payment and attach PAYMENT-RESPONSE header
+  // 6. Settle verified payment and attach PAYMENT-RESPONSE header
   const responseHeaders: Record<string, string> = { ...CORS_HEADERS };
   if (check.status === "verified") {
     const settlement = await settleVerifiedPayment(check.context);
