@@ -3,8 +3,15 @@
   "name": "io.github.kwizzlesurp10-ctrl/apexseo-geo-mcp",
   "title": "ApexSEO GEO & AI-Crawler Audit MCP",
   "description": "Keyless Base USDC x402 MCP for live AI-crawler, GEO/AEO & JSON-LD citation audits.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "websiteUrl": "https://apexseo-geo-mcp.vercel.app",
+  "icons": [
+    {
+      "src": "https://apexseo-geo-mcp.vercel.app/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["256x256"]
+    }
+  ],
   "repository": {
     "url": "https://github.com/kwizzlesurp10-ctrl/apexseo-geo-mcp",
     "source": "github"

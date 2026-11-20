@@ -105,7 +105,7 @@ async function handleSingleRpc(
           serverInfo: {
             name: "apexseo-geo-mcp",
             title: "ApexSEO GEO & AI-Crawler Audit MCP",
-            version: "0.1.0",
+            version: "0.1.1",
           },
           instructions:
             "Keyless live-site Technical SEO, AI-Crawler (robots.txt / llms.txt), GEO/AEO & JSON-LD citation auditor powered by ApexSEO Elite v2026.6. geo_health and geo_pricing are free; audit tools settle per-call in Base Mainnet (eip155:8453) USDC ($0.01-$0.05) via x402 v2.",

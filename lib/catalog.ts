@@ -128,7 +128,7 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
         ok: true,
         service: "apexseo-geo-mcp",
         title: "ApexSEO GEO & AI-Crawler Audit MCP",
-        version: "0.1.0",
+        version: "0.1.1",
         framework: "ApexSEO Elite v2026.6",
         operator: CANONICAL_BRAND,
         payTo: cfg.payTo,

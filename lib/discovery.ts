@@ -7,7 +7,7 @@ export function buildMcpServerCard(requestOrigin?: string) {
   return {
     name: "io.github.kwizzlesurp10-ctrl/apexseo-geo-mcp",
     title: "ApexSEO GEO & AI-Crawler Audit MCP",
-    version: "0.1.0",
+    version: "0.1.1",
     description:
       "Keyless Base USDC x402 MCP & HTTP audit suite for AI-crawler readiness (robots.txt/llms.txt), GEO/AEO page scoring, JSON-LD citation completeness, and competitor benchmarks.",
     protocolVersion: "2025-03-26",

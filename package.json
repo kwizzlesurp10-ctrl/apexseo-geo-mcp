@@ -1,6 +1,6 @@
 {
   "name": "apexseo-geo-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Keyless Base USDC x402 MCP server & HTTP API for AI-crawler (robots.txt / llms.txt), GEO/AEO page readiness, JSON-LD citation completeness, and competitor audits powered by ApexSEO Elite.",
   "license": "MIT",
   "type": "module",

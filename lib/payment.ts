@@ -85,6 +85,7 @@ export function buildPaymentRequiredChallenge(params: {
       mimeType: "application/json",
       serviceName: "ApexSEO GEO Audit MCP",
       tags: ["seo", "geo", "ai-crawlers", "schema", "x402"],
+      iconUrl: `${cfg.publicBaseUrl}/icon.png`,
     },
     accepts: [
       {

@@ -10,6 +10,7 @@ export function generateMetadata(): Metadata {
       "Keyless remote Streamable HTTP MCP and x402 Base USDC API auditing AI-crawler access (robots.txt, llms.txt), technical GEO/AEO readiness, JSON-LD citations, and competitor deltas.",
     metadataBase: new URL(baseUrl),
     alternates: { canonical: "/" },
+    icons: { icon: "/icon.png" },
     authors: [{ name: CANONICAL_BRAND.author, url: CANONICAL_BRAND.website }],
     openGraph: {
       type: "website",
