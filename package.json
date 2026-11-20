@@ -1,0 +1,59 @@
+{
+  "name": "apexseo-geo-mcp",
+  "version": "0.1.0",
+  "description": "Keyless Base USDC x402 MCP server & HTTP API for AI-crawler (robots.txt / llms.txt), GEO/AEO page readiness, JSON-LD citation completeness, and competitor audits powered by ApexSEO Elite.",
+  "license": "MIT",
+  "type": "module",
+  "private": false,
+  "packageManager": "pnpm@12.15.0",
+  "author": "Keith S. <kwizzlesurp10@gmail.com> (https://kwizzlesurp.com)",
+  "homepage": "https://kwizzlesurp.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kwizzlesurp10-ctrl/apexseo-geo-mcp.git"
+  },
+  "bin": {
+    "apexseo-geo-mcp": "./dist/mcp-stdio.mjs"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "x402",
+    "geo",
+    "seo",
+    "aeo",
+    "ai-crawlers",
+    "llms-txt",
+    "json-ld",
+    "base-usdc"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "build:mcp": "esbuild bin/mcp-stdio.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/mcp-stdio.mjs",
+    "mcp:stdio": "pnpm run build:mcp && node dist/mcp-stdio.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@x402/core": "^2.31.0",
+    "@x402/evm": "^2.31.0",
+    "@x402/extensions": "^2.31.0",
+    "@x402/mcp": "^2.31.0",
+    "cheerio": "^1.2.0",
+    "next": "^15.5.29",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
