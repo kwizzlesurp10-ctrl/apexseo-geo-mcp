@@ -7,6 +7,7 @@ import { POST as auditPageRoute, GET as auditPageGetRoute } from "@/app/api/audi
 import { GET as healthRoute } from "@/app/api/health/route";
 import { GET as pricingRoute } from "@/app/api/pricing/route";
 import { GET as mcpGetRoute, POST as mcpPostRoute } from "@/app/mcp/route";
+import { GET as mcpGlamaClaimGetRoute } from "@/app/mcp/.well-known/glama.json/route";
 import { findGeoTool } from "@/lib/catalog";
 import { CANONICAL_PAY_TO } from "@/lib/env";
 import { handleToolHttpRequest } from "@/lib/http-handler";
@@ -291,5 +292,11 @@ describe("HTTP x402 Enforcement & Streamable MCP Server", () => {
     expect(unpaidEnvelope.isError).toBe(true);
     expect(unpaidEnvelope.structuredContent.x402Version).toBe(2);
     expect(JSON.parse(unpaidEnvelope.content[0].text).x402Version).toBe(2);
+
+    // Glama connector ownership verification claim endpoint
+    const glamaClaimRes = mcpGlamaClaimGetRoute();
+    expect(glamaClaimRes.status).toBe(200);
+    const glamaClaimJson = await glamaClaimRes.json();
+    expect(glamaClaimJson.claim).toBe("glama_claim_cDkoeQzE_Pr9_A1lGY71xgeDoaY7xZSI");
   });
 });
