@@ -3,6 +3,7 @@
 [![ApexSEO GEO & AI-Crawler Audit MCP connector badge](https://glama.ai/mcp/connectors/app.vercel.apexseo-geo-mcp/apex-seo-geo-and-ai-crawler-audit-mcp/badges/score.svg)](https://glama.ai/mcp/connectors/app.vercel.apexseo-geo-mcp/apex-seo-geo-and-ai-crawler-audit-mcp)
 [![apexseo-geo-mcp server score badge](https://glama.ai/mcp/servers/kwizzlesurp10-ctrl/apexseo-geo-mcp/badges/score.svg)](https://glama.ai/mcp/servers/kwizzlesurp10-ctrl/apexseo-geo-mcp)
 [![Official MCP Registry](https://img.shields.io/badge/MCP%20Registry-v0.1.1%20active-0ea5e9)](https://registry.modelcontextprotocol.io/v0.1/servers?search=apexseo-geo-mcp)
+[![x402 Trust](https://x402-trust.com/badge/415257.svg)](https://x402-trust.com/provider/apexseo-geo-mcp.vercel.app)
 
 > **Keyless Remote Streamable HTTP MCP & Base Mainnet USDC x402 API** powered by **ApexSEO Elite v2026.6**. Evaluates any live public website for AI-search citation readiness (GEO/AEO), `robots.txt` per-bot crawler policies, `/llms.txt` compliance, JSON-LD entity structure, technical performance, and head-to-head competitor deltas.
 
