@@ -20,6 +20,7 @@ export interface GeoToolSpec<TInput extends z.ZodTypeAny = z.ZodTypeAny> {
   outputJsonSchema: Record<string, unknown>;
   exampleInput: Record<string, unknown>;
   annotations: {
+    title: string;
     readOnlyHint: boolean;
     destructiveHint: boolean;
     idempotentHint: boolean;
@@ -106,18 +107,22 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     outputJsonSchema: {
       type: "object",
       properties: {
-        ok: { type: "boolean" },
-        service: { type: "string" },
-        version: { type: "string" },
-        payTo: { type: "string" },
-        network: { type: "string" },
-        demoMode: { type: "boolean" },
-        facilitatorAuthConfigured: { type: "boolean" },
+        ok: { type: "boolean", description: "True when ApexSEO GEO service is healthy." },
+        service: { type: "string", description: "Canonical service identifier." },
+        version: { type: "string", description: "Deployed service semver version." },
+        payTo: { type: "string", description: "Base USDC settlement recipient address." },
+        network: { type: "string", description: "CAIP-2 payment settlement network (eip155:8453)." },
+        demoMode: { type: "boolean", description: "True when running in demo payment bypass mode." },
+        facilitatorAuthConfigured: {
+          type: "boolean",
+          description: "True when Coinbase CDP facilitator JWT credentials are loaded.",
+        },
       },
       required: ["ok", "service", "payTo", "network"],
     },
     exampleInput: {},
     annotations: {
+      title: "Service Health & Auth Readiness",
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
@@ -165,15 +170,20 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     outputJsonSchema: {
       type: "object",
       properties: {
-        currency: { type: "string" },
-        network: { type: "string" },
-        payTo: { type: "string" },
-        endpoints: { type: "array", items: { type: "object" } },
+        currency: { type: "string", description: "Settlement token ticker (USDC)." },
+        network: { type: "string", description: "CAIP-2 settlement network (eip155:8453)." },
+        payTo: { type: "string", description: "Recipient USDC address on Base." },
+        endpoints: {
+          type: "array",
+          items: { type: "object" },
+          description: "Available free and paid audit endpoints with USDC atomic prices.",
+        },
       },
       required: ["currency", "network", "payTo", "endpoints"],
     },
     exampleInput: {},
     annotations: {
+      title: "Live x402 USDC Pricing & Tool Menu",
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
@@ -215,18 +225,19 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     outputJsonSchema: {
       type: "object",
       properties: {
-        origin: { type: "string" },
-        robotsTxt: { type: "object" },
-        llmsTxt: { type: "object" },
-        sitemapXml: { type: "object" },
-        wellKnown: { type: "object" },
-        summary: { type: "object" },
-        iceActionPlan: { type: "array" },
+        origin: { type: "string", description: "Audited origin URL (scheme and host)." },
+        robotsTxt: { type: "object", description: "Fetched robots.txt status and parsed AI crawler rules." },
+        llmsTxt: { type: "object", description: "Presence and structure analysis for llms.txt and llms-full.txt." },
+        sitemapXml: { type: "object", description: "XML sitemap discovery and validity checks." },
+        wellKnown: { type: "object", description: "Discovery checks for /.well-known/x402, mcp.json, and agent-card.json." },
+        summary: { type: "object", description: "Aggregate AI-crawler readiness score (0-100) and bot access matrix." },
+        iceActionPlan: { type: "array", description: "Prioritized ICE remediation actions ordered by impact and effort." },
       },
       required: ["origin", "robotsTxt", "llmsTxt", "summary", "iceActionPlan"],
     },
     exampleInput: { url: "https://example.com" },
     annotations: {
+      title: "AI Crawler, robots.txt & llms.txt Audit ($0.01)",
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
@@ -251,19 +262,20 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     outputJsonSchema: {
       type: "object",
       properties: {
-        finalUrl: { type: "string" },
-        fetch: { type: "object" },
-        directives: { type: "object" },
-        structure: { type: "object" },
-        subscores: { type: "object" },
-        geoScore: { type: "number" },
-        grade: { type: "string" },
-        iceActionPlan: { type: "array" },
+        finalUrl: { type: "string", description: "Final resolved page URL after HTTP redirects." },
+        fetch: { type: "object", description: "HTTP status, TTFB timing, redirect hops, and header diagnostics." },
+        directives: { type: "object", description: "Indexability directives (X-Robots-Tag, meta robots, canonical, hreflang)." },
+        structure: { type: "object", description: "Heading hierarchy, structured lists/tables, alt text, and E-E-A-T signals." },
+        subscores: { type: "object", description: "Component category scores contributing to overall geoScore." },
+        geoScore: { type: "number", description: "Composite GEO/AEO readiness score from 0 to 100." },
+        grade: { type: "string", description: "Letter grade tier derived from geoScore." },
+        iceActionPlan: { type: "array", description: "Prioritized technical SEO and GEO remediation actions." },
       },
       required: ["finalUrl", "geoScore", "grade", "subscores", "iceActionPlan"],
     },
     exampleInput: { url: "https://example.com" },
     annotations: {
+      title: "Live GEO / AEO & Technical SEO Page Audit ($0.02)",
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
@@ -288,19 +300,20 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     outputJsonSchema: {
       type: "object",
       properties: {
-        finalUrl: { type: "string" },
-        jsonLdBlockCount: { type: "number" },
-        parseErrors: { type: "array" },
-        detectedTypes: { type: "array" },
-        schemaScore: { type: "number" },
-        citationReadiness: { type: "string" },
-        recommendedJsonLdPatch: { type: "object" },
-        iceActionPlan: { type: "array" },
+        finalUrl: { type: "string", description: "Final audited page URL after redirects." },
+        jsonLdBlockCount: { type: "number", description: "Total embedded application/ld+json script blocks found." },
+        parseErrors: { type: "array", description: "JSON syntax or structure errors in extracted JSON-LD blocks." },
+        detectedTypes: { type: "array", description: "Normalized Schema.org @type entities detected on the page." },
+        schemaScore: { type: "number", description: "JSON-LD citation completeness score from 0 to 100." },
+        citationReadiness: { type: "string", description: "Readiness classification for AI answer engine citations." },
+        recommendedJsonLdPatch: { type: "object", description: "Ready-to-paste Schema.org @graph JSON-LD patch." },
+        iceActionPlan: { type: "array", description: "Prioritized schema and entity graph fixes." },
       },
       required: ["finalUrl", "detectedTypes", "schemaScore", "recommendedJsonLdPatch"],
     },
     exampleInput: { url: "https://example.com" },
     annotations: {
+      title: "JSON-LD & AI Citation Entity Check ($0.01)",
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
@@ -325,12 +338,12 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
     outputJsonSchema: {
       type: "object",
       properties: {
-        target: { type: "object" },
-        competitors: { type: "array" },
-        deltasVsCompetitorBest: { type: "object" },
-        gapsToClose: { type: "array" },
-        advantagesToPress: { type: "array" },
-        iceActionPlan: { type: "array" },
+        target: { type: "object", description: "Full GEO and AI-crawler audit metrics for targetUrl." },
+        competitors: { type: "array", description: "Parallel audit summaries for each competitor URL." },
+        deltasVsCompetitorBest: { type: "object", description: "Numeric win/loss deltas comparing target vs top competitor." },
+        gapsToClose: { type: "array", description: "Metrics where target trails competitor best." },
+        advantagesToPress: { type: "array", description: "Metrics where target outperforms all tested competitors." },
+        iceActionPlan: { type: "array", description: "Ranked ICE counter-strategy roadmap." },
       },
       required: ["target", "competitors", "deltasVsCompetitorBest", "iceActionPlan"],
     },
@@ -339,6 +352,7 @@ export const GEO_TOOL_CATALOG: GeoToolSpec<any>[] = [
       competitorUrls: ["https://competitor-a.example"],
     },
     annotations: {
+      title: "Live Head-to-Head Competitor GEO Benchmark ($0.05)",
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
