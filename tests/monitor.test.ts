@@ -20,9 +20,11 @@ import { createMonitorServer } from "../monitor/server";
 import type { CronRunSummary, MonitorConfig } from "../monitor/types";
 
 function makeSampleRun(overrides: Partial<CronRunSummary> = {}): CronRunSummary {
+  const nowIso = new Date().toISOString();
+  const startedIso = new Date(Date.now() - 1000).toISOString();
   return {
-    startedAt: "2026-11-20T12:00:00.000Z",
-    finishedAt: "2026-11-20T12:00:01.000Z",
+    startedAt: startedIso,
+    finishedAt: nowIso,
     durationMs: 420,
     trigger: "cron",
     overallStatus: "healthy",
@@ -42,7 +44,7 @@ function makeSampleRun(overrides: Partial<CronRunSummary> = {}): CronRunSummary 
         latencyMs: 90,
         ok: true,
         detail: "ok=true",
-        checkedAt: "2026-11-20T12:00:01.000Z",
+        checkedAt: nowIso,
       },
       {
         id: "x402:geo_page_audit",
@@ -56,7 +58,7 @@ function makeSampleRun(overrides: Partial<CronRunSummary> = {}): CronRunSummary 
         ok: true,
         paymentParityOk: true,
         detail: "402 parity OK",
-        checkedAt: "2026-11-20T12:00:01.000Z",
+        checkedAt: nowIso,
       },
     ],
     trust: {
@@ -65,7 +67,7 @@ function makeSampleRun(overrides: Partial<CronRunSummary> = {}): CronRunSummary 
       endpointCount: 4,
       avgTrustScore: "—",
       endpoints: [],
-      fetchedAt: "2026-11-20T12:00:01.000Z",
+      fetchedAt: nowIso,
     },
     registries: {
       x402scan: { url: "https://www.x402scan.com", httpStatus: 200, txns: 137, volumeUsd: "16.60", buyers: 21 },
